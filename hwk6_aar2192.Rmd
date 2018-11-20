@@ -17,3 +17,30 @@ library(tidyverse)
 
 theme_set(theme_bw() + theme(legend.position = "bottom"))
 ```
+
+# Problem 1  
+This problem uses the dataset on homicides given by the Washington Post.
+
+### Part a
+Create a city_state variable (e.g. “Baltimore, MD”), and a binary variable indicating whether the homicide is solved. Omit cities Dallas, TX; Phoenix, AZ; and Kansas City, MO – these don’t report victim race. Also omit Tulsa, AL – this is a data entry mistake. Modifiy victim_race to have categories white and non-white, with white as the reference category. Be sure that victim_age is numeric.
+
+
+```{r}
+homicide_df = 
+  read_csv("data/homicide-data.csv", na = c("", "NA", "Unknown")) %>%
+  mutate(
+    city_state = str_c(city, state, sep = ", "),
+    resolution = case_when(
+      disposition == "Closed without arrest" ~ "unsolved",
+      disposition == "Open/No arrest"        ~ "unsolved",
+      disposition == "Closed by arrest"      ~ "solved"
+    )
+  ) %>% 
+  filter(city_state != "Tulsa, AL") %>% 
+  filter(city_state != "Dallas, TX") %>% 
+  filter(city_state != "Phoenix, AZ") %>% 
+  filter(city_state != "Kansas City, MO") %>% 
+  filter(victim_race != is.na(victim_race))
+```
+
+
