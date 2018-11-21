@@ -67,10 +67,40 @@ fit_logistic_balt %>%
          CI_lower = exp(CI_lower),
          CI_upper = exp(CI_upper)) %>%
   select(term, log_OR = estimate, OR, CI_lower, CI_upper, p.value) %>% 
-  filter(term=="victim_racenon-white")
+  filter(term=="victim_racenon-white") %>% 
+  select(term, OR, CI_lower, CI_upper) %>% 
+  knitr::kable(digits = 3)
+
 ```
+
+
 The data was filtered to just look at Baltimore cases. A logistic regression was conducted to investigate the association between race and resolved cases controlling for age and sex of the victim.
 
 The estimated adjusted OR for solving homicides comparing non-white victims to white victims keeping all other variables fixed is 0.441 with a 95% confidence interval of 0.313 to 0.620. Non-white victims have 0.441 times the likelihood of having a resolved case compared to white victims in Baltimore. We are 95% confident that the true OR lies between 0.313 to 0.620, adjusting for sex and age.
 
+### Part c  
+Now run glm for each of the cities in your dataset, and extract the adjusted odds ratio (and CI) for solving homicides comparing non-white victims to white victims. Do this within a “tidy” pipeline, making use of purrr::map, list columns, and unnest as necessary to create a dataframe with estimated ORs and CIs for each city.
 
+```{r}
+  homicide_df %>% 
+  mutate(resolved = as.numeric(resolution == "resolved")) %>% 
+  group_by(city) %>% 
+  nest() %>% 
+  mutate(models = map(data, ~glm(resolved ~ victim_age + victim_race + victim_sex, data = ., family = binomial())),
+         models = map(models, broom:::tidy)) %>% 
+  select(-data) %>% 
+  unnest() %>% 
+  filter(term=="victim_racenon-white") %>% 
+  mutate(CI_lower = estimate - 1.96*std.error,
+         CI_upper = estimate + 1.96*std.error,
+         OR = exp(estimate),
+         CI_lower = exp(CI_lower),
+         CI_upper = exp(CI_upper)) %>%
+  select(city, OR, CI_lower, CI_upper) %>% 
+  knitr::kable(digits = 3)
+```
+
+
+Using the function glm, I conducted logistic regression for all of the cities through use of map statements and list columns. I extracted only the estimated adjusted ORs and their 95% confidence intervals.
+
+### Part d

@@ -48,6 +48,8 @@ homicide_df =
 ## )
 ```
 
+I cleaned the dataset given fromthe Washington post. Age was converted to a numerical variable, race was made into a binary variable, and observations with missing data from race were deleted. Additionally, four cities were deleted from the dataset due to missing information/incorrect coding.
+
 ### Part b
 
 For the city of Baltimore, MD, use the glm function to fit a logistic regression with resolved vs unresolved as the outcome and victim age, sex and race (as just defined) as predictors. Save the output of glm as an R object; apply the broom::tidy to this object; and obtain the estimate and confidence interval of the adjusted odds ratio for solving homicides comparing non-white victims to white victims keeping all other variables fixed.
@@ -58,4 +60,101 @@ fit_logistic_balt =
   mutate(resolved = as.numeric(resolution == "resolved")) %>% 
   filter(city == "Baltimore") %>% 
   glm(resolved ~ victim_age + victim_race + victim_sex, data = ., family = binomial())
+
+fit_logistic_balt %>% 
+  broom::tidy() %>% 
+  mutate(CI_lower = estimate - 1.96*std.error,
+         CI_upper = estimate + 1.96*std.error,
+         OR = exp(estimate),
+         CI_lower = exp(CI_lower),
+         CI_upper = exp(CI_upper)) %>%
+  select(term, log_OR = estimate, OR, CI_lower, CI_upper, p.value) %>% 
+  filter(term=="victim_racenon-white") %>% 
+  select(term, OR, CI_lower, CI_upper) %>% 
+  knitr::kable(digits = 3)
 ```
+
+| term                  |     OR|  CI\_lower|  CI\_upper|
+|:----------------------|------:|----------:|----------:|
+| victim\_racenon-white |  0.441|      0.313|       0.62|
+
+The data was filtered to just look at Baltimore cases. A logistic regression was conducted to investigate the association between race and resolved cases controlling for age and sex of the victim.
+
+The estimated adjusted OR for solving homicides comparing non-white victims to white victims keeping all other variables fixed is 0.441 with a 95% confidence interval of 0.313 to 0.620. Non-white victims have 0.441 times the likelihood of having a resolved case compared to white victims in Baltimore. We are 95% confident that the true OR lies between 0.313 to 0.620, adjusting for sex and age.
+
+### Part c
+
+Now run glm for each of the cities in your dataset, and extract the adjusted odds ratio (and CI) for solving homicides comparing non-white victims to white victims. Do this within a “tidy” pipeline, making use of purrr::map, list columns, and unnest as necessary to create a dataframe with estimated ORs and CIs for each city.
+
+``` r
+  homicide_df %>% 
+  mutate(resolved = as.numeric(resolution == "resolved")) %>% 
+  group_by(city) %>% 
+  nest() %>% 
+  mutate(models = map(data, ~glm(resolved ~ victim_age + victim_race + victim_sex, data = ., family = binomial())),
+         models = map(models, broom:::tidy)) %>% 
+  select(-data) %>% 
+  unnest() %>% 
+  filter(term=="victim_racenon-white") %>% 
+  mutate(CI_lower = estimate - 1.96*std.error,
+         CI_upper = estimate + 1.96*std.error,
+         OR = exp(estimate),
+         CI_lower = exp(CI_lower),
+         CI_upper = exp(CI_upper)) %>%
+  select(city, OR, CI_lower, CI_upper) %>% 
+  knitr::kable(digits = 3)
+```
+
+| city           |     OR|  CI\_lower|  CI\_upper|
+|:---------------|------:|----------:|----------:|
+| Albuquerque    |  0.739|      0.447|      1.223|
+| Atlanta        |  0.753|      0.432|      1.313|
+| Baltimore      |  0.441|      0.313|      0.620|
+| Baton Rouge    |  0.668|      0.313|      1.425|
+| Birmingham     |  1.039|      0.615|      1.756|
+| Boston         |  0.127|      0.052|      0.307|
+| Buffalo        |  0.392|      0.214|      0.719|
+| Charlotte      |  0.558|      0.321|      0.969|
+| Chicago        |  0.562|      0.431|      0.733|
+| Cincinnati     |  0.318|      0.184|      0.551|
+| Columbus       |  0.861|      0.638|      1.161|
+| Denver         |  0.602|      0.359|      1.009|
+| Detroit        |  0.652|      0.488|      0.870|
+| Durham         |  1.003|      0.404|      2.489|
+| Fort Worth     |  0.838|      0.555|      1.266|
+| Fresno         |  0.445|      0.229|      0.864|
+| Houston        |  0.873|      0.699|      1.090|
+| Indianapolis   |  0.505|      0.382|      0.667|
+| Jacksonville   |  0.658|      0.502|      0.862|
+| Las Vegas      |  0.763|      0.592|      0.982|
+| Long Beach     |  0.794|      0.388|      1.626|
+| Los Angeles    |  0.666|      0.483|      0.918|
+| Louisville     |  0.392|      0.259|      0.593|
+| Memphis        |  0.778|      0.521|      1.162|
+| Miami          |  0.577|      0.376|      0.885|
+| Milwaukee      |  0.632|      0.403|      0.991|
+| Minneapolis    |  0.646|      0.345|      1.209|
+| Nashville      |  0.902|      0.656|      1.241|
+| New Orleans    |  0.467|      0.295|      0.738|
+| New York       |  0.532|      0.279|      1.012|
+| Oakland        |  0.213|      0.104|      0.435|
+| Oklahoma City  |  0.681|      0.478|      0.971|
+| Omaha          |  0.170|      0.094|      0.307|
+| Philadelphia   |  0.644|      0.486|      0.852|
+| Pittsburgh     |  0.282|      0.161|      0.493|
+| Richmond       |  0.447|      0.162|      1.238|
+| San Antonio    |  0.689|      0.461|      1.030|
+| Sacramento     |  0.781|      0.449|      1.359|
+| Savannah       |  0.605|      0.284|      1.288|
+| San Bernardino |  0.880|      0.393|      1.972|
+| San Diego      |  0.483|      0.298|      0.785|
+| San Francisco  |  0.458|      0.290|      0.723|
+| St. Louis      |  0.577|      0.406|      0.820|
+| Stockton       |  0.376|      0.196|      0.719|
+| Tampa          |  1.159|      0.587|      2.288|
+| Tulsa          |  0.596|      0.408|      0.869|
+| Washington     |  0.514|      0.260|      1.017|
+
+Using the function glm, I conducted logistic regression for all of the cities through use of map statements and list columns. I extracted only the estimated adjusted ORs and their 95% confidence intervals.
+
+### Part d
