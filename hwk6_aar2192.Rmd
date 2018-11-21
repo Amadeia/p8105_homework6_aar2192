@@ -144,7 +144,7 @@ In this problem, I will analyze data gathered to understand the effects of sever
 Load and clean the data for regression analysis (i.e. convert numeric to factor where appropriate, check for missing data, etc.).
 
 ```{r}
-birthweigh_df =
+birthweight_df =
   read_csv("data/birthweight.csv", na = c("", "NA", "Unknown")) %>% 
   janitor::clean_names() %>% 
   mutate(babysex = as.factor(babysex),
@@ -153,10 +153,10 @@ birthweigh_df =
          mrace = as.factor(mrace)) %>% 
   filter(frace != 9) 
 
-birthweigh_df%>% 
+birthweight_df%>% 
   str()
 
-summary(is.na(birthweigh_df))
+summary(is.na(birthweight_df))
 ```
 The given birthweight dataset was loaded and cleaned. There are 20 variables and 4342 observations. There are no missing observations. 4 variables were converted from integers to factors.
 
@@ -164,29 +164,29 @@ The given birthweight dataset was loaded and cleaned. There are 20 variables and
 Propose a regression model for birthweight. This model may be based on a hypothesized structure for the factors that underly birthweight, on a data-driven model-building process, or a combination of the two. Describe your modeling process and show a plot of model residuals against fitted values – use add_predictions and add_residuals in making this plot.
 
 ```{r}
-birthweigh_df_fit = lm(bwt ~ wtgain + fincome + gaweeks + malform + mrace, data = birthweigh_df )
+birthweight_df_fit = lm(bwt ~ wtgain + fincome + gaweeks + malform + mrace, data = birthweight_df )
 
 ## regression diagnostics and exploration of our model
 ## example with mrace and resid
-birthweigh_df %>% 
-  modelr::add_residuals(birthweigh_df_fit) %>% 
-  modelr::add_predictions(birthweigh_df_fit) %>% 
+birthweight_df %>% 
+  modelr::add_residuals(birthweight_df_fit) %>% 
+  modelr::add_predictions(birthweight_df_fit) %>% 
   ggplot(aes(x = mrace, y = resid)) + geom_violin()
 ## example with wtgain and resid
-birthweigh_df %>% 
-  modelr::add_residuals(birthweigh_df_fit) %>% 
-  modelr::add_predictions(birthweigh_df_fit) %>% 
+birthweight_df %>% 
+  modelr::add_residuals(birthweight_df_fit) %>% 
+  modelr::add_predictions(birthweight_df_fit) %>% 
   ggplot(aes(x = wtgain, y = resid)) + geom_point() 
 
 
 ##checking linearity of observed values for variable wtgain
-birthweigh_df %>% 
+birthweight_df %>% 
   ggplot(aes(x = wtgain, y = bwt)) + geom_point() + geom_smooth()
 
 ## plot of residuals and predictions
-birthweigh_df %>% 
-  modelr::add_residuals(birthweigh_df_fit) %>% 
-  modelr::add_predictions(birthweigh_df_fit) %>% 
+birthweight_df %>% 
+  modelr::add_residuals(birthweight_df_fit) %>% 
+  modelr::add_predictions(birthweight_df_fit) %>% 
   ggplot(aes(x = pred, y = resid)) + geom_point()
 
 ```
@@ -201,7 +201,18 @@ The plot of residuals vs. predictions does not appear to have a pattern, which i
 
 ### Part c  
 
-```{r}
+Compare your model to two others:  
+- One using length at birth and gestational age as predictors (main effects only)  
+- One using head circumference, length, sex, and all interactions (including the three-way interaction) between these  
 
+Make this comparison in terms of the cross-validated prediction error; use crossv_mc and functions in purrr as appropriate.
+
+
+```{r}
+## my model
+birthweight_df_fit = lm(bwt ~ wtgain + fincome + gaweeks + malform + mrace, data = birthweight_df )
+
+## model 1
+birthweight_model1 = lm(bwt ~ blength + gaweeks, data = birthweight_df )
 ```
 
