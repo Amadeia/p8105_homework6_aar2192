@@ -18,9 +18,9 @@ homicide_df =
   mutate(
     city_state = str_c(city, state, sep = ", "),
     resolution = case_when(
-      disposition == "Closed without arrest" ~ "unsolved",
-      disposition == "Open/No arrest"        ~ "unsolved",
-      disposition == "Closed by arrest"      ~ "solved"
+      disposition == "Closed without arrest" ~ "unresolved",
+      disposition == "Open/No arrest"        ~ "unresolved",
+      disposition == "Closed by arrest"      ~ "resolved"
     )
   ) %>% 
   filter(city_state != "Tulsa, AL") %>% 
@@ -46,4 +46,16 @@ homicide_df =
 ##   lon = col_double(),
 ##   disposition = col_character()
 ## )
+```
+
+### Part b
+
+For the city of Baltimore, MD, use the glm function to fit a logistic regression with resolved vs unresolved as the outcome and victim age, sex and race (as just defined) as predictors. Save the output of glm as an R object; apply the broom::tidy to this object; and obtain the estimate and confidence interval of the adjusted odds ratio for solving homicides comparing non-white victims to white victims keeping all other variables fixed.
+
+``` r
+fit_logistic_balt =
+  homicide_df %>% 
+  mutate(resolved = as.numeric(resolution == "resolved")) %>% 
+  filter(city == "Baltimore") %>% 
+  glm(resolved ~ victim_age + victim_race + victim_sex, data = ., family = binomial())
 ```
