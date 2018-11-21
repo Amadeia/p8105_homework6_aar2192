@@ -189,3 +189,5 @@ homicide_cities_OR %>%
 ```
 
 <img src="hwk6_aar2192_files/figure-markdown_github/unnamed-chunk-4-1.png" width="90%" />
+
+The city with the lowest estimated OR is Boston, MA followed by Omaha, NE and Oakland, CA. The 95% Confidence Interval is narrow for these cities as well. A low estimated OR here means that the number of resolved cases where the victim is non-white is less than that of white victims, adjusting for age and sex. There is a higher OR for the cities Tampa, FL, Birmingham, AL, and Durham, NC. However, The confidence interval for these cities is very wide. These three cities are the only ones with an estimated adjusted OR higher than 1. This goes to show that there is a stark disparity with regard to how race factors into the resolution of a murder across all cities.
