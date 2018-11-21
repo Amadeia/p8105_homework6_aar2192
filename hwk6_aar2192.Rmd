@@ -164,6 +164,44 @@ The given birthweight dataset was loaded and cleaned. There are 20 variables and
 Propose a regression model for birthweight. This model may be based on a hypothesized structure for the factors that underly birthweight, on a data-driven model-building process, or a combination of the two. Describe your modeling process and show a plot of model residuals against fitted values – use add_predictions and add_residuals in making this plot.
 
 ```{r}
+birthweigh_df_fit = lm(bwt ~ wtgain + fincome + gaweeks + malform + mrace, data = birthweigh_df )
+
+## regression diagnostics and exploration of our model
+## example with mrace and resid
+birthweigh_df %>% 
+  modelr::add_residuals(birthweigh_df_fit) %>% 
+  modelr::add_predictions(birthweigh_df_fit) %>% 
+  ggplot(aes(x = mrace, y = resid)) + geom_violin()
+## example with wtgain and resid
+birthweigh_df %>% 
+  modelr::add_residuals(birthweigh_df_fit) %>% 
+  modelr::add_predictions(birthweigh_df_fit) %>% 
+  ggplot(aes(x = wtgain, y = resid)) + geom_point() 
+
+
+##checking linearity of observed values for variable wtgain
+birthweigh_df %>% 
+  ggplot(aes(x = wtgain, y = bwt)) + geom_point() + geom_smooth()
+
+## plot of residuals and predictions
+birthweigh_df %>% 
+  modelr::add_residuals(birthweigh_df_fit) %>% 
+  modelr::add_predictions(birthweigh_df_fit) %>% 
+  ggplot(aes(x = pred, y = resid)) + geom_point()
+
+```
+
+The original model that was proposed for birthweight included the variables **wtgain** (mother's weight gain during pregnancy in pounds), **fincome** (family monthly income in hundreds), **gaweeks** (gestational age in weeks), **malform** (presence of malformations that could affect weight), and **mrace** (race of the mother). The race of mother was included as there is research that shows that mothers of Black race have poorer health outcomes when giving birth/in pregnancy. 
+
+For this chosen model, the residuals appear to be centered around 0 with no apparent pattern with regard to the variables wtgain, gaweeks, fincome, and malform. However, for mrace while the residuals are centered around 0 there is more variability for Black and White mothers and very little variability for Asian mothers. Given that there don't appear to be many outliers or pattern for the residuals of weightgain and these variables, we can possibly include them in our model to predict infant birthweight.
+
+I plotted wtgain, the main effect of interest, and bwt to see if the plot appears linear. It somewhat appears linear but the smooth line isn't as straight as it could be, so wtgain may not share a clearcut linear relationship with bwt.
+
+The plot of residuals vs. predictions does not appear to have a pattern, which is good as we want uniformly distributed residuals, preferably centerd around 0. Most of the predictions are centered around 3100 grams with residuals centered around 0.
+
+### Part c  
+
+```{r}
 
 ```
 
