@@ -214,14 +214,13 @@ Make this comparison in terms of the cross-validated prediction error; use cross
 set.seed(1)
 
 ## my model
-my_model = lm(bwt ~ wtgain + fincome + gaweeks + malform + mrace, data = birthweight_df )
+#my_model = lm(bwt ~ wtgain + fincome + gaweeks + malform + mrace, data = birthweight_df )
 
 ## model main effects
-model_mef = lm(bwt ~ blength + gaweeks, data = birthweight_df )
+#model_mef = lm(bwt ~ blength + gaweeks, data = birthweight_df )
 
 ## model interaction
-model_int = lm(bwt ~ blength*bhead*babysex , data = birthweight_df )
-
+#model_int = lm(bwt ~ blength*bhead*babysex , data = birthweight_df )
 
 cv_df =
   crossv_mc(birthweight_df, 100) 
@@ -231,6 +230,14 @@ cv_df =
   mutate(my_model = map(train, ~lm(bwt ~ wtgain + fincome + gaweeks + malform + mrace, data = .x)),
          model_mef = map(train, ~lm(bwt ~ blength + gaweeks, data = .x)),
          model_int = map(train, ~lm(bwt ~ blength*bhead*babysex , data = .x))) %>% 
-  mutate(rmse_my_model = map2(my_model, test, ~rmse(model = .x, data = .y)))
+  mutate(rmse_my_model = map2_dbl(my_model, test, ~rmse(model = .x, data = .y)),
+         rmse_mef = map2_dbl(model_mef, test, ~rmse(model = .x, data = .y)),
+         rmse_int = map2_dbl(model_int, test, ~rmse(model = .x, data = .y)))
+
+#summarize the results
+cv_df %>% 
+  select(.id, starts_with("rmse")) %>% 
+  gather(key = model, value = rmse, rmse_my_model:rmse_int) %>% 
+  ggplot(aes(x = model, y = rmse)) + geom_violin()
 ```
 
