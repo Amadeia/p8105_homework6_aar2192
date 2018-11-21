@@ -15,6 +15,8 @@ knitr::opts_chunk$set(
 
 library(tidyverse)
 library(purrr)
+library(mgcv)
+library(modelr)
 
 theme_set(theme_bw() + theme(legend.position = "bottom"))
 ```
@@ -169,13 +171,13 @@ birthweight_df_fit = lm(bwt ~ wtgain + fincome + gaweeks + malform + mrace, data
 ## regression diagnostics and exploration of our model
 ## example with mrace and resid
 birthweight_df %>% 
-  modelr::add_residuals(birthweight_df_fit) %>% 
-  modelr::add_predictions(birthweight_df_fit) %>% 
+  add_residuals(birthweight_df_fit) %>% 
+  add_predictions(birthweight_df_fit) %>% 
   ggplot(aes(x = mrace, y = resid)) + geom_violin()
 ## example with wtgain and resid
 birthweight_df %>% 
-  modelr::add_residuals(birthweight_df_fit) %>% 
-  modelr::add_predictions(birthweight_df_fit) %>% 
+  add_residuals(birthweight_df_fit) %>% 
+  add_predictions(birthweight_df_fit) %>% 
   ggplot(aes(x = wtgain, y = resid)) + geom_point() 
 
 
@@ -185,8 +187,8 @@ birthweight_df %>%
 
 ## plot of residuals and predictions
 birthweight_df %>% 
-  modelr::add_residuals(birthweight_df_fit) %>% 
-  modelr::add_predictions(birthweight_df_fit) %>% 
+  add_residuals(birthweight_df_fit) %>% 
+  add_predictions(birthweight_df_fit) %>% 
   ggplot(aes(x = pred, y = resid)) + geom_point()
 
 ```
@@ -209,10 +211,26 @@ Make this comparison in terms of the cross-validated prediction error; use cross
 
 
 ```{r}
-## my model
-birthweight_df_fit = lm(bwt ~ wtgain + fincome + gaweeks + malform + mrace, data = birthweight_df )
+set.seed(1)
 
-## model 1
-birthweight_model1 = lm(bwt ~ blength + gaweeks, data = birthweight_df )
+## my model
+my_model = lm(bwt ~ wtgain + fincome + gaweeks + malform + mrace, data = birthweight_df )
+
+## model main effects
+model_mef = lm(bwt ~ blength + gaweeks, data = birthweight_df )
+
+## model interaction
+model_int = lm(bwt ~ blength*bhead*babysex , data = birthweight_df )
+
+
+cv_df =
+  crossv_mc(birthweight_df, 100) 
+
+cv_df =
+  cv_df %>% 
+  mutate(my_model = map(train, ~lm(bwt ~ wtgain + fincome + gaweeks + malform + mrace, data = .x)),
+         model_mef = map(train, ~lm(bwt ~ blength + gaweeks, data = .x)),
+         model_int = map(train, ~lm(bwt ~ blength*bhead*babysex , data = .x))) %>% 
+  mutate(rmse_my_model = map2(my_model, test, ~rmse(model = .x, data = .y)))
 ```
 
