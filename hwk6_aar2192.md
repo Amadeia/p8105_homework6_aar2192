@@ -275,7 +275,10 @@ birthweight_df_fit = lm(bwt ~ wtgain + fincome + gaweeks + malform + mrace, data
 birthweight_df %>% 
   add_residuals(birthweight_df_fit) %>% 
   add_predictions(birthweight_df_fit) %>% 
-  ggplot(aes(x = mrace, y = resid)) + geom_violin()
+  ggplot(aes(x = mrace, y = resid)) + geom_violin() +
+  labs( x = "Race of Mother", y = "Residuals",
+        title = " Residuals vs. Race of Mother") +
+  theme(plot.title = element_text(hjust = 0.5))
 ```
 
 <img src="hwk6_aar2192_files/figure-markdown_github/unnamed-chunk-6-1.png" width="90%" />
@@ -285,7 +288,10 @@ birthweight_df %>%
 birthweight_df %>% 
   add_residuals(birthweight_df_fit) %>% 
   add_predictions(birthweight_df_fit) %>% 
-  ggplot(aes(x = wtgain, y = resid)) + geom_point() 
+  ggplot(aes(x = wtgain, y = resid)) + geom_point() +
+  labs(x = "Weight gain of mother (pounds)", y = "Residual",
+       title = "Residuals vs. Mother Weight Gain") +
+  theme(plot.title = element_text(hjust = 0.5))
 ```
 
 <img src="hwk6_aar2192_files/figure-markdown_github/unnamed-chunk-6-2.png" width="90%" />
@@ -295,7 +301,10 @@ birthweight_df %>%
 
 ##checking linearity of observed values for variable wtgain
 birthweight_df %>% 
-  ggplot(aes(x = wtgain, y = bwt)) + geom_point() + geom_smooth()
+  ggplot(aes(x = wtgain, y = bwt)) + geom_point() + geom_smooth() +
+  labs( x = "Weight gain of mother (pounds)" , y = "Infant birthweight (grams)",
+        title = "Birthweight vs. Weight Gain of Mother") +
+  theme(plot.title = element_text(hjust = 0.5))
 ## `geom_smooth()` using method = 'gam' and formula 'y ~ s(x, bs = "cs")'
 ```
 
@@ -307,7 +316,10 @@ birthweight_df %>%
 birthweight_df %>% 
   add_residuals(birthweight_df_fit) %>% 
   add_predictions(birthweight_df_fit) %>% 
-  ggplot(aes(x = pred, y = resid)) + geom_point()
+  ggplot(aes(x = pred, y = resid)) + geom_point() +
+  labs( x = "Predicted values for infant birthweight (grams)", y = "Residuals",
+        title = "Residuals vs. Predicted Birthweight") +
+  theme(plot.title = element_text(hjust = 0.5))
 ```
 
 <img src="hwk6_aar2192_files/figure-markdown_github/unnamed-chunk-6-4.png" width="90%" />
@@ -316,9 +328,9 @@ The original model that was proposed for birthweight included the variables **wt
 
 For this chosen model, the residuals appear to be centered around 0 with no apparent pattern with regard to the variables wtgain, gaweeks, fincome, and malform. However, for mrace while the residuals are centered around 0 there is more variability for Black and White mothers and very little variability for Asian mothers. Given that there don't appear to be many outliers or pattern for the residuals of weightgain and these variables, we can possibly include them in our model to predict infant birthweight.
 
-I plotted wtgain, the main effect of interest, and bwt to see if the plot appears linear. It somewhat appears linear but the smooth line isn't as straight as it could be, so wtgain may not share a clearcut linear relationship with bwt.
+I plotted **wtgain**, the main effect of interest for my model, and **bwt** to see if the plot appears linear. It somewhat appears linear but the smooth line isn't as straight as it could be, so wtgain may not share a clearcut linear relationship with bwt.
 
-The plot of residuals vs. predictions does not appear to have a pattern, which is good as we want uniformly distributed residuals, preferably centerd around 0. Most of the predictions are centered around 3100 grams with residuals centered around 0.
+*The plot of residuals vs. predictions does not appear to have a pattern, which is good as we want uniformly distributed residuals, preferably centerd around 0. Most of the predictions are centered around 3100 grams with residuals centered around 0. However, there does seem to be a lot of spread, which means this may not be the best model to predict infant birthweight.*
 
 ### Part c
 
@@ -358,11 +370,13 @@ cv_df %>%
   gather(key = model, value = rmse) %>% 
   mutate(model = str_replace(model, "rmse_", ""),
          model = fct_inorder(model))  %>% 
-  ggplot(aes(x = model, y = rmse)) + geom_violin()
+  ggplot(aes(x = model, y = rmse)) + geom_violin() +
+  labs(title = "Prediction errors for each of the models") +
+  theme(plot.title = element_text(hjust = 0.5))
 ```
 
 <img src="hwk6_aar2192_files/figure-markdown_github/unnamed-chunk-7-1.png" width="90%" />
 
 In order to compare the three models I used cross validation. The original dataset was split into training and testing datasets, and then I used map statements to obtain the RMSE of the models so that I could compare them to each other.
 
-Given my violin plot of the prediction errors, RMSE, for each of the three models, I would select the model with the interaction terms (model\_int) as it has the lowest rmse compared to the other models. I would definitely not go with my original model as the rmse is much higher compared to the other models.
+Given my violin plot of the prediction errors, RMSE, for each of the three models, *I would select the model with the interaction terms (model\_int) as it has the lowest RMSE compared to the other models.* I would definitely not go with my original model as the RMSE is much higher compared to the other models.
