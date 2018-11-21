@@ -47,6 +47,8 @@ homicide_df =
          victim_age = as.numeric(victim_age))
 ```
 
+I cleaned the dataset given fromthe Washington post. Age was converted to a numerical variable, race was made into a binary variable, and observations with missing data from race were deleted. Additionally, four cities were deleted from the dataset due to missing information/incorrect coding.
+
 ### Part b  
 For the city of Baltimore, MD, use the glm function to fit a logistic regression with resolved vs unresolved as the outcome and victim age, sex and race (as just defined) as predictors. Save the output of glm as an R object; apply the broom::tidy to this object; and obtain the estimate and confidence interval of the adjusted odds ratio for solving homicides comparing non-white victims to white victims keeping all other variables fixed.
 
@@ -65,8 +67,10 @@ fit_logistic_balt %>%
          CI_lower = exp(CI_lower),
          CI_upper = exp(CI_upper)) %>%
   select(term, log_OR = estimate, OR, CI_lower, CI_upper, p.value) %>% 
-  knitr::kable(digits = 3)
+  filter(term=="victim_racenon-white")
 ```
+The data was filtered to just look at Baltimore cases. A logistic regression was conducted to investigate the association between race and resolved cases controlling for age and sex of the victim.
 
+The estimated adjusted OR for solving homicides comparing non-white victims to white victims keeping all other variables fixed is 0.441 with a 95% confidence interval of 0.313 to 0.620. Non-white victims have 0.441 times the likelihood of having a resolved case compared to white victims in Baltimore. We are 95% confident that the true OR lies between 0.313 to 0.620, adjusting for sex and age.
 
 
