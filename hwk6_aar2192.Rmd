@@ -130,6 +130,7 @@ homicide_cities_OR %>%
   ggplot(aes(x = city_state, y = OR)) +
   geom_point() +
   geom_errorbar(aes(ymin = CI_lower, ymax = CI_upper)) +
+  labs(x = "Cities", y = "Estimated Adjusted OR", title = "OR for Resolved Murders Comparing Non-white to White Race") +
   theme(axis.text.x = element_text(angle = 90, hjust = 1))
 ```
 

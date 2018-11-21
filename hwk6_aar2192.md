@@ -89,7 +89,7 @@ Now run glm for each of the cities in your dataset, and extract the adjusted odd
 ``` r
   homicide_df %>% 
   mutate(resolved = as.numeric(resolution == "resolved")) %>% 
-  group_by(city) %>% 
+  group_by(city_state) %>% 
   nest() %>% 
   mutate(models = map(data, ~glm(resolved ~ victim_age + victim_race + victim_sex, data = ., family = binomial())),
          models = map(models, broom:::tidy)) %>% 
@@ -101,60 +101,91 @@ Now run glm for each of the cities in your dataset, and extract the adjusted odd
          OR = exp(estimate),
          CI_lower = exp(CI_lower),
          CI_upper = exp(CI_upper)) %>%
-  select(city, OR, CI_lower, CI_upper) %>% 
+  select(city_state, OR, CI_lower, CI_upper) %>% 
   knitr::kable(digits = 3)
 ```
 
-| city           |     OR|  CI\_lower|  CI\_upper|
-|:---------------|------:|----------:|----------:|
-| Albuquerque    |  0.739|      0.447|      1.223|
-| Atlanta        |  0.753|      0.432|      1.313|
-| Baltimore      |  0.441|      0.313|      0.620|
-| Baton Rouge    |  0.668|      0.313|      1.425|
-| Birmingham     |  1.039|      0.615|      1.756|
-| Boston         |  0.127|      0.052|      0.307|
-| Buffalo        |  0.392|      0.214|      0.719|
-| Charlotte      |  0.558|      0.321|      0.969|
-| Chicago        |  0.562|      0.431|      0.733|
-| Cincinnati     |  0.318|      0.184|      0.551|
-| Columbus       |  0.861|      0.638|      1.161|
-| Denver         |  0.602|      0.359|      1.009|
-| Detroit        |  0.652|      0.488|      0.870|
-| Durham         |  1.003|      0.404|      2.489|
-| Fort Worth     |  0.838|      0.555|      1.266|
-| Fresno         |  0.445|      0.229|      0.864|
-| Houston        |  0.873|      0.699|      1.090|
-| Indianapolis   |  0.505|      0.382|      0.667|
-| Jacksonville   |  0.658|      0.502|      0.862|
-| Las Vegas      |  0.763|      0.592|      0.982|
-| Long Beach     |  0.794|      0.388|      1.626|
-| Los Angeles    |  0.666|      0.483|      0.918|
-| Louisville     |  0.392|      0.259|      0.593|
-| Memphis        |  0.778|      0.521|      1.162|
-| Miami          |  0.577|      0.376|      0.885|
-| Milwaukee      |  0.632|      0.403|      0.991|
-| Minneapolis    |  0.646|      0.345|      1.209|
-| Nashville      |  0.902|      0.656|      1.241|
-| New Orleans    |  0.467|      0.295|      0.738|
-| New York       |  0.532|      0.279|      1.012|
-| Oakland        |  0.213|      0.104|      0.435|
-| Oklahoma City  |  0.681|      0.478|      0.971|
-| Omaha          |  0.170|      0.094|      0.307|
-| Philadelphia   |  0.644|      0.486|      0.852|
-| Pittsburgh     |  0.282|      0.161|      0.493|
-| Richmond       |  0.447|      0.162|      1.238|
-| San Antonio    |  0.689|      0.461|      1.030|
-| Sacramento     |  0.781|      0.449|      1.359|
-| Savannah       |  0.605|      0.284|      1.288|
-| San Bernardino |  0.880|      0.393|      1.972|
-| San Diego      |  0.483|      0.298|      0.785|
-| San Francisco  |  0.458|      0.290|      0.723|
-| St. Louis      |  0.577|      0.406|      0.820|
-| Stockton       |  0.376|      0.196|      0.719|
-| Tampa          |  1.159|      0.587|      2.288|
-| Tulsa          |  0.596|      0.408|      0.869|
-| Washington     |  0.514|      0.260|      1.017|
+| city\_state        |     OR|  CI\_lower|  CI\_upper|
+|:-------------------|------:|----------:|----------:|
+| Albuquerque, NM    |  0.739|      0.447|      1.223|
+| Atlanta, GA        |  0.753|      0.432|      1.313|
+| Baltimore, MD      |  0.441|      0.313|      0.620|
+| Baton Rouge, LA    |  0.668|      0.313|      1.425|
+| Birmingham, AL     |  1.039|      0.615|      1.756|
+| Boston, MA         |  0.127|      0.052|      0.307|
+| Buffalo, NY        |  0.392|      0.214|      0.719|
+| Charlotte, NC      |  0.558|      0.321|      0.969|
+| Chicago, IL        |  0.562|      0.431|      0.733|
+| Cincinnati, OH     |  0.318|      0.184|      0.551|
+| Columbus, OH       |  0.861|      0.638|      1.161|
+| Denver, CO         |  0.602|      0.359|      1.009|
+| Detroit, MI        |  0.652|      0.488|      0.870|
+| Durham, NC         |  1.003|      0.404|      2.489|
+| Fort Worth, TX     |  0.838|      0.555|      1.266|
+| Fresno, CA         |  0.445|      0.229|      0.864|
+| Houston, TX        |  0.873|      0.699|      1.090|
+| Indianapolis, IN   |  0.505|      0.382|      0.667|
+| Jacksonville, FL   |  0.658|      0.502|      0.862|
+| Las Vegas, NV      |  0.763|      0.592|      0.982|
+| Long Beach, CA     |  0.794|      0.388|      1.626|
+| Los Angeles, CA    |  0.666|      0.483|      0.918|
+| Louisville, KY     |  0.392|      0.259|      0.593|
+| Memphis, TN        |  0.778|      0.521|      1.162|
+| Miami, FL          |  0.577|      0.376|      0.885|
+| Milwaukee, wI      |  0.632|      0.403|      0.991|
+| Minneapolis, MN    |  0.646|      0.345|      1.209|
+| Nashville, TN      |  0.902|      0.656|      1.241|
+| New Orleans, LA    |  0.467|      0.295|      0.738|
+| New York, NY       |  0.532|      0.279|      1.012|
+| Oakland, CA        |  0.213|      0.104|      0.435|
+| Oklahoma City, OK  |  0.681|      0.478|      0.971|
+| Omaha, NE          |  0.170|      0.094|      0.307|
+| Philadelphia, PA   |  0.644|      0.486|      0.852|
+| Pittsburgh, PA     |  0.282|      0.161|      0.493|
+| Richmond, VA       |  0.447|      0.162|      1.238|
+| San Antonio, TX    |  0.689|      0.461|      1.030|
+| Sacramento, CA     |  0.781|      0.449|      1.359|
+| Savannah, GA       |  0.605|      0.284|      1.288|
+| San Bernardino, CA |  0.880|      0.393|      1.972|
+| San Diego, CA      |  0.483|      0.298|      0.785|
+| San Francisco, CA  |  0.458|      0.290|      0.723|
+| St. Louis, MO      |  0.577|      0.406|      0.820|
+| Stockton, CA       |  0.376|      0.196|      0.719|
+| Tampa, FL          |  1.159|      0.587|      2.288|
+| Tulsa, OK          |  0.596|      0.408|      0.869|
+| Washington, DC     |  0.514|      0.260|      1.017|
 
 Using the function glm, I conducted logistic regression for all of the cities through use of map statements and list columns. I extracted only the estimated adjusted ORs and their 95% confidence intervals.
 
 ### Part d
+
+Create a plot that shows the estimated ORs and CIs for each city. Organize cities according to estimated OR, and comment on the plot.
+
+``` r
+homicide_cities_OR = 
+  homicide_df %>% 
+  mutate(resolved = as.numeric(resolution == "resolved")) %>% 
+  group_by(city_state) %>% 
+  nest() %>% 
+  mutate(models = map(data, ~glm(resolved ~ victim_age + victim_race + victim_sex, data = ., family = binomial())),
+         models = map(models, broom:::tidy)) %>% 
+  select(-data) %>% 
+  unnest() %>% 
+  filter(term=="victim_racenon-white") %>% 
+  mutate(CI_lower = estimate - 1.96*std.error,
+         CI_upper = estimate + 1.96*std.error,
+         OR = exp(estimate),
+         CI_lower = exp(CI_lower),
+         CI_upper = exp(CI_upper)) %>%
+  select(city_state, OR, CI_lower, CI_upper)
+
+homicide_cities_OR %>% 
+  mutate(city_state = fct_reorder(city_state, OR)) %>% 
+  ggplot(aes(x = city_state, y = OR)) +
+  geom_point() +
+  geom_errorbar(aes(ymin = CI_lower, ymax = CI_upper)) +
+  labs(x = "Cities", y = "Estimated Adjusted OR", title = "OR for Resolved Murders Comparing Non-white to White Race") +
+  theme(axis.text.x = element_text(angle = 90, hjust = 1))
+```
+
+<img src="hwk6_aar2192_files/figure-markdown_github/unnamed-chunk-4-1.png" width="90%" />
