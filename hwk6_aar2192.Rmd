@@ -259,4 +259,4 @@ cv_df %>%
 
 In order to compare the three models I used cross validation. The original dataset was split into training and testing datasets, and then I used map statements to obtain the RMSE of the models so that I could compare them to each other.
 
-Given my violin plot of the prediction errors, RMSE, for each of the three models, _I would select the model with the interaction terms (model_int) as it has the lowest RMSE compared to the other models._ I would definitely not go with my original model as the RMSE is much higher compared to the other models.
+Given my violin plot of the prediction errors, RMSE, for each of the three models, _I would select the model with the interaction terms (model_int) as it has the lowest RMSE compared to the other models._ I would definitely not go with my original model as the RMSE is much higher compared to the other models. This corroborates some of my observations on the model I initially proposed, which stated that it may not be the best model to predict infant birthweight.
