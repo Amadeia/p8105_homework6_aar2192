@@ -231,13 +231,18 @@ cv_df =
          model_mef = map(train, ~lm(bwt ~ blength + gaweeks, data = .x)),
          model_int = map(train, ~lm(bwt ~ blength*bhead*babysex , data = .x))) %>% 
   mutate(rmse_my_model = map2_dbl(my_model, test, ~rmse(model = .x, data = .y)),
-         rmse_mef = map2_dbl(model_mef, test, ~rmse(model = .x, data = .y)),
-         rmse_int = map2_dbl(model_int, test, ~rmse(model = .x, data = .y)))
+         rmse_model_mef = map2_dbl(model_mef, test, ~rmse(model = .x, data = .y)),
+         rmse_model_int = map2_dbl(model_int, test, ~rmse(model = .x, data = .y)))
 
 #summarize the results
 cv_df %>% 
-  select(.id, starts_with("rmse")) %>% 
-  gather(key = model, value = rmse, rmse_my_model:rmse_int) %>% 
+  select(starts_with("rmse")) %>%
+  gather(key = model, value = rmse) %>% 
+  mutate(model = str_replace(model, "rmse_", ""),
+         model = fct_inorder(model))  %>% 
   ggplot(aes(x = model, y = rmse)) + geom_violin()
 ```
 
+In order to compare the three models I used cross validation. The original dataset was split into training and testing datasets, and then I used map statements to obtain the RMSE of the models so that I could compare them to each other.
+
+Given my violin plot of the prediction errors, RMSE, for each of the three models, I would select the model with the interaction terms (model_int) as it has the lowest RMSE compared to the other models. I would definitely not go with my original model as the RMSE is much higher compared to the other models.

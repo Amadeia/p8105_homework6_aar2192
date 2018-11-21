@@ -191,3 +191,178 @@ homicide_cities_OR %>%
 <img src="hwk6_aar2192_files/figure-markdown_github/unnamed-chunk-4-1.png" width="90%" />
 
 The city with the lowest estimated OR is Boston, MA followed by Omaha, NE and Oakland, CA. The 95% Confidence Interval is narrow for these cities as well. A low estimated OR here means that the number of resolved cases where the victim is non-white is less than that of white victims, adjusting for age and sex. There is a higher OR for the cities Tampa, FL, Birmingham, AL, and Durham, NC. However, The confidence interval for these cities is very wide. These three cities are the only ones with an estimated adjusted OR higher than 1. This goes to show that there is a stark disparity with regard to how race factors into the resolution of a murder across all cities.
+
+Problem 2
+=========
+
+In this problem, I will analyze data gathered to understand the effects of several variables on a child’s birthweight.
+
+### Part a
+
+Load and clean the data for regression analysis (i.e. convert numeric to factor where appropriate, check for missing data, etc.).
+
+``` r
+birthweight_df =
+  read_csv("data/birthweight.csv", na = c("", "NA", "Unknown")) %>% 
+  janitor::clean_names() %>% 
+  mutate(babysex = as.factor(babysex),
+         frace = as.factor(frace),
+         malform = as.factor(malform),
+         mrace = as.factor(mrace)) %>% 
+  filter(frace != 9) 
+## Parsed with column specification:
+## cols(
+##   .default = col_integer(),
+##   gaweeks = col_double(),
+##   ppbmi = col_double(),
+##   smoken = col_double()
+## )
+## See spec(...) for full column specifications.
+
+birthweight_df%>% 
+  str()
+## Classes 'tbl_df', 'tbl' and 'data.frame':    4342 obs. of  20 variables:
+##  $ babysex : Factor w/ 2 levels "1","2": 2 1 2 1 2 1 2 2 1 1 ...
+##  $ bhead   : int  34 34 36 34 34 33 33 33 36 33 ...
+##  $ blength : int  51 48 50 52 52 52 46 49 52 50 ...
+##  $ bwt     : int  3629 3062 3345 3062 3374 3374 2523 2778 3515 3459 ...
+##  $ delwt   : int  177 156 148 157 156 129 126 140 146 169 ...
+##  $ fincome : int  35 65 85 55 5 55 96 5 85 75 ...
+##  $ frace   : Factor w/ 5 levels "1","2","3","4",..: 1 2 1 1 1 1 2 1 1 2 ...
+##  $ gaweeks : num  39.9 25.9 39.9 40 41.6 ...
+##  $ malform : Factor w/ 2 levels "0","1": 1 1 1 1 1 1 1 1 1 1 ...
+##  $ menarche: int  13 14 12 14 13 12 14 12 11 12 ...
+##  $ mheight : int  63 65 64 64 66 66 72 62 61 64 ...
+##  $ momage  : int  36 25 29 18 20 23 29 19 13 19 ...
+##  $ mrace   : Factor w/ 4 levels "1","2","3","4": 1 2 1 1 1 1 2 1 1 2 ...
+##  $ parity  : int  3 0 0 0 0 0 0 0 0 0 ...
+##  $ pnumlbw : int  0 0 0 0 0 0 0 0 0 0 ...
+##  $ pnumsga : int  0 0 0 0 0 0 0 0 0 0 ...
+##  $ ppbmi   : num  26.3 21.3 23.6 21.8 21 ...
+##  $ ppwt    : int  148 128 137 127 130 115 105 119 105 145 ...
+##  $ smoken  : num  0 0 1 10 1 0 0 0 0 4 ...
+##  $ wtgain  : int  29 28 11 30 26 14 21 21 41 24 ...
+
+summary(is.na(birthweight_df))
+##   babysex          bhead          blength           bwt         
+##  Mode :logical   Mode :logical   Mode :logical   Mode :logical  
+##  FALSE:4342      FALSE:4342      FALSE:4342      FALSE:4342     
+##    delwt          fincome          frace          gaweeks       
+##  Mode :logical   Mode :logical   Mode :logical   Mode :logical  
+##  FALSE:4342      FALSE:4342      FALSE:4342      FALSE:4342     
+##   malform         menarche        mheight          momage       
+##  Mode :logical   Mode :logical   Mode :logical   Mode :logical  
+##  FALSE:4342      FALSE:4342      FALSE:4342      FALSE:4342     
+##    mrace           parity         pnumlbw         pnumsga       
+##  Mode :logical   Mode :logical   Mode :logical   Mode :logical  
+##  FALSE:4342      FALSE:4342      FALSE:4342      FALSE:4342     
+##    ppbmi            ppwt           smoken          wtgain       
+##  Mode :logical   Mode :logical   Mode :logical   Mode :logical  
+##  FALSE:4342      FALSE:4342      FALSE:4342      FALSE:4342
+```
+
+The given birthweight dataset was loaded and cleaned. There are 20 variables and 4342 observations. There are no missing observations. 4 variables were converted from integers to factors.
+
+### Part b
+
+Propose a regression model for birthweight. This model may be based on a hypothesized structure for the factors that underly birthweight, on a data-driven model-building process, or a combination of the two. Describe your modeling process and show a plot of model residuals against fitted values – use add\_predictions and add\_residuals in making this plot.
+
+``` r
+birthweight_df_fit = lm(bwt ~ wtgain + fincome + gaweeks + malform + mrace, data = birthweight_df )
+
+## regression diagnostics and exploration of our model
+## example with mrace and resid
+birthweight_df %>% 
+  add_residuals(birthweight_df_fit) %>% 
+  add_predictions(birthweight_df_fit) %>% 
+  ggplot(aes(x = mrace, y = resid)) + geom_violin()
+```
+
+<img src="hwk6_aar2192_files/figure-markdown_github/unnamed-chunk-6-1.png" width="90%" />
+
+``` r
+## example with wtgain and resid
+birthweight_df %>% 
+  add_residuals(birthweight_df_fit) %>% 
+  add_predictions(birthweight_df_fit) %>% 
+  ggplot(aes(x = wtgain, y = resid)) + geom_point() 
+```
+
+<img src="hwk6_aar2192_files/figure-markdown_github/unnamed-chunk-6-2.png" width="90%" />
+
+``` r
+
+
+##checking linearity of observed values for variable wtgain
+birthweight_df %>% 
+  ggplot(aes(x = wtgain, y = bwt)) + geom_point() + geom_smooth()
+## `geom_smooth()` using method = 'gam' and formula 'y ~ s(x, bs = "cs")'
+```
+
+<img src="hwk6_aar2192_files/figure-markdown_github/unnamed-chunk-6-3.png" width="90%" />
+
+``` r
+
+## plot of residuals and predictions
+birthweight_df %>% 
+  add_residuals(birthweight_df_fit) %>% 
+  add_predictions(birthweight_df_fit) %>% 
+  ggplot(aes(x = pred, y = resid)) + geom_point()
+```
+
+<img src="hwk6_aar2192_files/figure-markdown_github/unnamed-chunk-6-4.png" width="90%" />
+
+The original model that was proposed for birthweight included the variables **wtgain** (mother's weight gain during pregnancy in pounds), **fincome** (family monthly income in hundreds), **gaweeks** (gestational age in weeks), **malform** (presence of malformations that could affect weight), and **mrace** (race of the mother). The race of mother was included as there is research that shows that mothers of Black race have poorer health outcomes when giving birth/in pregnancy.
+
+For this chosen model, the residuals appear to be centered around 0 with no apparent pattern with regard to the variables wtgain, gaweeks, fincome, and malform. However, for mrace while the residuals are centered around 0 there is more variability for Black and White mothers and very little variability for Asian mothers. Given that there don't appear to be many outliers or pattern for the residuals of weightgain and these variables, we can possibly include them in our model to predict infant birthweight.
+
+I plotted wtgain, the main effect of interest, and bwt to see if the plot appears linear. It somewhat appears linear but the smooth line isn't as straight as it could be, so wtgain may not share a clearcut linear relationship with bwt.
+
+The plot of residuals vs. predictions does not appear to have a pattern, which is good as we want uniformly distributed residuals, preferably centerd around 0. Most of the predictions are centered around 3100 grams with residuals centered around 0.
+
+### Part c
+
+Compare your model to two others:
+- One using length at birth and gestational age as predictors (main effects only)
+- One using head circumference, length, sex, and all interactions (including the three-way interaction) between these
+
+Make this comparison in terms of the cross-validated prediction error; use crossv\_mc and functions in purrr as appropriate.
+
+``` r
+set.seed(1)
+
+## my model
+#my_model = lm(bwt ~ wtgain + fincome + gaweeks + malform + mrace, data = birthweight_df )
+
+## model main effects
+#model_mef = lm(bwt ~ blength + gaweeks, data = birthweight_df )
+
+## model interaction
+#model_int = lm(bwt ~ blength*bhead*babysex , data = birthweight_df )
+
+cv_df =
+  crossv_mc(birthweight_df, 100) 
+
+cv_df =
+  cv_df %>% 
+  mutate(my_model = map(train, ~lm(bwt ~ wtgain + fincome + gaweeks + malform + mrace, data = .x)),
+         model_mef = map(train, ~lm(bwt ~ blength + gaweeks, data = .x)),
+         model_int = map(train, ~lm(bwt ~ blength*bhead*babysex , data = .x))) %>% 
+  mutate(rmse_my_model = map2_dbl(my_model, test, ~rmse(model = .x, data = .y)),
+         rmse_model_mef = map2_dbl(model_mef, test, ~rmse(model = .x, data = .y)),
+         rmse_model_int = map2_dbl(model_int, test, ~rmse(model = .x, data = .y)))
+
+#summarize the results
+cv_df %>% 
+  select(starts_with("rmse")) %>%
+  gather(key = model, value = rmse) %>% 
+  mutate(model = str_replace(model, "rmse_", ""),
+         model = fct_inorder(model))  %>% 
+  ggplot(aes(x = model, y = rmse)) + geom_violin()
+```
+
+<img src="hwk6_aar2192_files/figure-markdown_github/unnamed-chunk-7-1.png" width="90%" />
+
+In order to compare the three models I used cross validation. The original dataset was split into training and testing datasets, and then I used map statements to obtain the RMSE of the models so that I could compare them to each other.
+
+Given my violin plot of the prediction errors, RMSE, for each of the three models, I would select the model with the interaction terms (model\_int) as it has the lowest rmse compared to the other models. I would definitely not go with my original model as the rmse is much higher compared to the other models.
