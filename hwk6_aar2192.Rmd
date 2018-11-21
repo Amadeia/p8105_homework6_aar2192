@@ -136,4 +136,34 @@ homicide_cities_OR %>%
 
 The city with the lowest estimated OR is Boston, MA followed by Omaha, NE and Oakland, CA. The 95% Confidence Interval is narrow for these cities as well. A low estimated OR here means that the number of resolved cases where the victim is non-white is less than that of white victims, adjusting for age and sex. There is a higher OR for the cities Tampa, FL, Birmingham, AL, and Durham, NC. However, The confidence interval for these cities is very wide. These three cities are the only ones with an estimated adjusted OR higher than 1. This goes to show that there is a stark disparity with regard to how race factors into the resolution of a murder across all cities.
 
+# Problem 2  
+
+In this problem, I will analyze data gathered to understand the effects of several variables on a child’s birthweight. 
+
+### Part a
+Load and clean the data for regression analysis (i.e. convert numeric to factor where appropriate, check for missing data, etc.).
+
+```{r}
+birthweigh_df =
+  read_csv("data/birthweight.csv", na = c("", "NA", "Unknown")) %>% 
+  janitor::clean_names() %>% 
+  mutate(babysex = as.factor(babysex),
+         frace = as.factor(frace),
+         malform = as.factor(malform),
+         mrace = as.factor(mrace)) %>% 
+  filter(frace != 9) 
+
+birthweigh_df%>% 
+  str()
+
+summary(is.na(birthweigh_df))
+```
+The given birthweight dataset was loaded and cleaned. There are 20 variables and 4342 observations. There are no missing observations. 4 variables were converted from integers to factors.
+
+### Part b  
+Propose a regression model for birthweight. This model may be based on a hypothesized structure for the factors that underly birthweight, on a data-driven model-building process, or a combination of the two. Describe your modeling process and show a plot of model residuals against fitted values – use add_predictions and add_residuals in making this plot.
+
+```{r}
+
+```
 
