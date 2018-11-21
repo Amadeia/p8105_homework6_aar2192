@@ -14,6 +14,7 @@ knitr::opts_chunk$set(
 )
 
 library(tidyverse)
+library(purrr)
 
 theme_set(theme_bw() + theme(legend.position = "bottom"))
 ```
@@ -40,7 +41,13 @@ homicide_df =
   filter(city_state != "Dallas, TX") %>% 
   filter(city_state != "Phoenix, AZ") %>% 
   filter(city_state != "Kansas City, MO") %>% 
-  filter(victim_race != is.na(victim_race))
+  filter(victim_race != is.na(victim_race)) %>% 
+  mutate(victim_race = ifelse(victim_race %in% "White", "white", "non-white"),
+         victim_race = fct_relevel(victim_race, "white"),
+         victim_age = as.numeric(victim_age))
 ```
+
+
+
 
 
